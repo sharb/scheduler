@@ -1,14 +1,17 @@
 from flask import jsonify, request
 from flask_restful import reqparse, Resource, reqparse
-from app.helpers.job_helpers import store_job, valid_json, already_exists
-import json, sys, os
+from app.helpers.job_helpers import valid_json, scheduleJob
+import json, sys, os, datetime
+
 
 parser = reqparse.RequestParser()
-parser.add_argument('DummyData', type=bool, location='headers')
+parser.add_argument('mock', type=bool, location='headers')
 parser.add_argument('body', type=list, location='json')
 
+
 class Job(Resource):
-    jobs = {}
+    def __init__(self, scheduler):
+        self.scheduler = scheduler
 
     def get(self, job_name):
         args = parser.parse_args()
@@ -33,17 +36,5 @@ class Job(Resource):
         if (not valid_json(json_data)):
             return json.loads('{"error": "please provide a valid job"}'), 400
         
-        if (already_exists(job_name, args["DummyData"])):
-            return json.loads('{"error": "this job name already exists"}'), 400
-
-        
-
-        if (args["DummyData"]):
-            jobs = store_job(job_name, json_data)
-            # return json.loads('{"message": "job added sucessfully"}'), 201
-            return jobs, 201
-            
-        return args["DummyData"], 201
-
-
+        return scheduleJob(self, job_name, json_data, args["mock"])
         

@@ -2,3 +2,7 @@ Flask
 flask-restful
 markdown2
 pytest
+Flask-APScheduler
+SQLAlchemy
+boto3
+awscli

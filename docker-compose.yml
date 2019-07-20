@@ -4,5 +4,9 @@ services:
     build: .
     volumes: 
       - .:/usr/src/app
+      - ~/.aws:/root/.aws
     ports:
       - 8080:8080
+      - 8081:8081
+    environment:
+     - AWS_DEFAULT_PROFILE=nubank
