@@ -11,14 +11,23 @@ GET - desplays all the current jobs
 
 * response: 
 ```json 
-[
-    {
-    "name": "job name",
-    "time_scheduled": "date time",
-    "status": "running/scheduled/done"
-    }, 
-    ...
-]
+{
+    "some-job": {
+        "image": "nginx",
+        "time_scheduled": "2019-07-23 08:30:00.00",
+        "status": "running"
+    },
+    "other-job": {
+        "image": "nginx",
+        "time_scheduled": "2019-07-24 08:30:00.00",
+        "status": "running"
+    },
+    "yes-another": {
+        "dns_name": "ec2-34-222-141-76.us-west-2.compute.amazonaws.com",
+        "instance_id": "i-01c5128562d5f93da",
+        "status": "running"
+    }
+}
 ```
 
 ## `/jobs/<name>`
@@ -27,13 +36,19 @@ GET - gets information about the specific job name
 
 * Body: None
 
-* response: 
+* response (if the job hasn't run): 
 ```json
 {
-    "id": "id",
     "name": "job name",
     "time_scheduled": "date time",
-    "status": "running/scheduled/done"
+}
+```
+* response (if the job already ran): 
+```json
+{
+    "dns_name": "ec2-34-222-141-76.us-west-2.compute.amazonaws.com",
+    "instance_id": "i-01c5128562d5f93da",
+    "status": "running"
 }
 ```
 
@@ -53,8 +68,7 @@ POST - adds a job
 ```json
 {
     "name": "job name",
-    "time_scheduled": "date time set to run",
-    "status": "running/scheduled/done"
+    "time_scheduled": "date time set to run"
 }
 ```
 

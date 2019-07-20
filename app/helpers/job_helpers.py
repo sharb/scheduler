@@ -3,79 +3,54 @@ from app.helpers.create_instance import create_instance
 
 ec2 = boto3.client('ec2', region_name='us-west-2')
 
-# def store_job(job_name, json_data):
-#     jobs = {}
-#     if (os.path.isfile("jobs.txt")):
-#         with open('jobs.txt','r') as f:
-#             jobs = eval(f.read())
-
-#     jobs[job_name] = json_data
-#     with open('jobs.txt','w') as f:
-#         f.write(str(jobs))
-
-#     # print("printing all jobs ---", file=sys.stdout)
-#     # print(jobs, file=sys.stdout)
-
-#     return jobs
-    
-
+# this method will valied if certain keys in json exists 
+# and it will validate all the values are of type str
 def valid_json(json_data):
     if (("image" not in json_data) or 
-            ("time_scheduled" not in json_data) or
-            ("status" not in json_data)):
+            ("time_scheduled" not in json_data)):
         return False
     if((not isinstance(json_data["image"], str)) or
             (not isinstance(json_data["time_scheduled"], str)) or
             (not isinstance(json_data["status"], str))):
-        # print("inside validate data --- not a str ---", file=sys.stdout)
         return False
 
     return True
-
-# def already_exists(job_name, DummyData):
-#     jobs = {}
-#     if(DummyData):
-#         if (os.path.isfile("jobs.txt")):
-#             with open('jobs.txt','r') as f:
-#                 jobs = eval(f.read())
-#             if (job_name in jobs):
-#                 return True
-#             else:
-#                 return False
-#         else: 
-#             return False
-#     else:
-#         return False
-def instance_by_name(job_name):
-    # return the matched instance details if the job name matches the "Name" tag in the instance 
-    # and if it's not terminating
+    
+# this method will return the matched instance details if the job name matches the "Name" tag in the instance 
+# only if it's not terminating
+# if get_all_instances is true, just return all running or pending instances
+def instance_by_name(job_name, get_all_instances=False):
+    return_data = {}
     custom_filter = [{'Name':'tag:Createdby',  'Values': ['Scheduler-Api']}]
     response = ec2.describe_instances(Filters=custom_filter)
     for instances in response["Reservations"]:
-        # print("######## DEBUG ####################", file=sys.stdout)
-        # print("jobname: " + job_name, file=sys.stdout)
-        # look for the correct name of the tag 
         for tag in instances["Instances"][0]["Tags"]:
             if (tag['Key'] == "Name"):
                 tagName = tag['Value']
-        # print("Tag: " + tagName, file=sys.stdout)
-        # print("status: " + instances["Instances"][0]['State']['Name'], file=sys.stdout)
-        # print("is it terminated? :" + str(instances["Instances"][0]['State']['Name'] in ['shutting-down', 'terminated', 'stopping', 'stopped']), file=sys.stdout)
-        # print("######## DEBUG ####################", file=sys.stdout)
-        if ((tagName == job_name) and 
-                not (instances["Instances"][0]['State']['Name'] in 
+        if (get_all_instances):
+            if (not (instances["Instances"][0]['State']['Name'] in 
                 ['shutting-down', 'terminated', 'stopping', 'stopped']) ):
-            # print("######## INSIDE THE IF ####################", file=sys.stdout)
-            return_data = {
-                "dnsName": instances["Instances"][0]["PublicDnsName"],
-                "id": instances["Instances"][0]["InstanceId"],
-                "status": instances["Instances"][0]['State']['Name']
-            }
-            print("############### return found instanse", file=sys.stdout)
-            return return_data
-    return ""
+                return_data[tagName] = {
+                        "dns_name": instances["Instances"][0]["PublicDnsName"],
+                        "instance_id": instances["Instances"][0]["InstanceId"],
+                        "status": instances["Instances"][0]['State']['Name']
+                }      
+        else: 
+            if ((tagName == job_name) and 
+                    not (instances["Instances"][0]['State']['Name'] in 
+                    ['shutting-down', 'terminated', 'stopping', 'stopped']) ):
+                return_data = {
+                    "dns_name": instances["Instances"][0]["PublicDnsName"],
+                    "instance_id": instances["Instances"][0]["InstanceId"],
+                    "status": instances["Instances"][0]['State']['Name']
+                }
+                return return_data
+    if (get_all_instances):
+        return return_data
+    else:
+        return ""
             
-
+# this method will return if the given str is in a datetime format or not
 def validTime(time_scheduled_str):
         now = datetime.datetime.now()
         try: 
@@ -88,9 +63,9 @@ def validTime(time_scheduled_str):
         return time_scheduled, True
 
 
-
+# this method will schedule the given job at the appropriate time
+# this will return the json message of when it was sheduled 
 def scheduleJob(self, job_name, json_data, mock):
-    print("before schedule ########################################  " + str(self.scheduler.get_jobs()), file=sys.stdout)
     if(not json_data["time_scheduled"] == "now"):
         time_scheduled, valid = validTime(json_data["time_scheduled"])
         if (not valid):
@@ -103,5 +78,3 @@ def scheduleJob(self, job_name, json_data, mock):
 
     self.scheduler.add_job(create_instance, trigger='date', run_date=datetime.datetime.now(), args=[job_name, json_data, mock], id=job_name)
     return json.loads('{"message": "job scheduled now"}'), 201 
-
-# [i-0d03ec1dee46e607e i-03788342c20bef5d2 i-01c27eb143ef6ece6]
