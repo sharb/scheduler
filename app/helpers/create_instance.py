@@ -14,7 +14,6 @@ def create_instance(job_name, json_data, mock):
                     sudo service docker start
                     sudo docker run -p 80:80 {}
         '''.format(json_data["image"])
-    instance_name = 'API-Job-' + job_name
 
     instances = ec2.create_instances(
         ImageId='ami-0f2176987ee50226e',
@@ -34,7 +33,11 @@ def create_instance(job_name, json_data, mock):
                 'Tags': [
                     {
                         'Key': 'Name',
-                        'Value': instance_name
+                        'Value': job_name
+                    }, 
+                    {
+                        'Key': 'Createdby',
+                        'Value': "Scheduler-Api"
                     }
                 ]
             }

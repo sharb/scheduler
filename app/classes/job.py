@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from flask_restful import reqparse, Resource, reqparse
-from app.helpers.job_helpers import valid_json, scheduleJob
+from app.helpers.job_helpers import valid_json, scheduleJob, instance_by_name
 import json, sys, os, datetime
 
 
@@ -14,15 +14,20 @@ class Job(Resource):
         self.scheduler = scheduler
 
     def get(self, job_name):
-        args = parser.parse_args()
-        if (args["DummyData"]):
-            if (os.path.isfile("jobs.txt")):
-                with open('jobs.txt','r') as f:
-                    jobs = eval(f.read())
-                
-                print("job found!: +++ " + str(jobs[job_name]), file=sys.stdout)
-                return json.loads(jobs[job_name]), 200
-        return jobs, 200
+        if (job_name in [job.id for job in self.scheduler.get_jobs()]):
+            scheduled = self.scheduler.get_job(job_name).trigger
+            image_name = self.scheduler.get_job(job_name).args[1]["image"]
+            response_json = {
+                "image": str(image_name),
+                "time_scheduled": str(scheduled)
+            }
+            # print("############ scheduled at:  " + str(image_name))
+            return response_json, 200
+        else:
+            return_data = instance_by_name(job_name)
+            if (return_data is not ""):
+                return return_data, 200
+            return json.loads('{"error": "did not find job"}'), 400
 
     def delete(self, job_name):
         # abort_if_todo_doesnt_exist(todo_id)
@@ -33,8 +38,16 @@ class Job(Resource):
         args = parser.parse_args()
         json_data = request.get_json()
 
+        # provide checks bofore scheduling the job
         if (not valid_json(json_data)):
             return json.loads('{"error": "please provide a valid job"}'), 400
         
+        if (instance_by_name(job_name) is not ""):
+            return json.loads('{"error": "job name already running"}'), 409
+        
+        if (job_name in [job.id for job in self.scheduler.get_jobs()]):
+            return json.loads('{"error": "job already scheduled to run"}'), 409
+
+        # schedule the job
         return scheduleJob(self, job_name, json_data, args["mock"])
         
