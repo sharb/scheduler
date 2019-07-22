@@ -4,29 +4,27 @@ from app.classes.index import Index
 from app.classes.job import Job
 from app.classes.jobs import Jobs
 from apscheduler.schedulers.background import BackgroundScheduler
-import sqlalchemy
-# from flask_apscheduler import APScheduler
-# from app.classes.job import Job
-# from app.job import get_job, post_job, delete_job, list_jobs
+import sqlalchemy, logging
+from logging.handlers import RotatingFileHandler
 
 engine = sqlalchemy.create_engine('sqlite:///{}'.format('example.sqlite'))
 scheduler = BackgroundScheduler()
 scheduler.add_jobstore('sqlalchemy', engine=engine)
 scheduler.start()
 
-# 2019-07-19 23:18:00.00
-# scheduler = APScheduler()
-# scheduler.init_app(app_instance)
-# , resource_class_kwargs={'scheduler': scheduler}
-
 app_instance = Flask(__name__)
 api = Api(app_instance)
 
-def configure_routes(api, scheduler):
+logging.basicConfig(filename='file.log',level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
+def configure_routes(api, scheduler, logging):
+    logging.info("configuring routes")
     api.add_resource(Index, '/', '/index')
     api.add_resource(Job, 
         '/jobs/<job_name>', 
-        '/jobs/<job_name>/', resource_class_kwargs={'scheduler': scheduler})
+        '/jobs/<job_name>/', resource_class_kwargs={'scheduler': scheduler, 'logging': logging})
     api.add_resource(Jobs, 
         '/jobs', 
-        '/jobs/', resource_class_kwargs={'scheduler': scheduler})
+        '/jobs/', resource_class_kwargs={'scheduler': scheduler, 'logging': logging})
+

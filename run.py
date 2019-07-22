@@ -1,7 +1,7 @@
-from app import app_instance, configure_routes, api, scheduler
+from app import app_instance, configure_routes, api, scheduler, logging
 
 
-configure_routes(api, scheduler)
+configure_routes(api, scheduler, logging)
 # scheduler.start()
 
 

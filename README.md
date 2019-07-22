@@ -15,12 +15,10 @@ GET - desplays all the current jobs
     "some-job": {
         "image": "nginx",
         "time_scheduled": "2019-07-23 08:30:00.00",
-        "status": "running"
     },
     "other-job": {
         "image": "nginx",
         "time_scheduled": "2019-07-24 08:30:00.00",
-        "status": "running"
     },
     "yes-another": {
         "dns_name": "ec2-34-222-141-76.us-west-2.compute.amazonaws.com",

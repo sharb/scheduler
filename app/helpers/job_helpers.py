@@ -1,5 +1,6 @@
 import os, datetime, sys, json, boto3
 from app.helpers.create_instance import create_instance
+# from app import app_instance
 
 ec2 = boto3.client('ec2', region_name='us-west-2')
 
@@ -10,8 +11,7 @@ def valid_json(json_data):
             ("time_scheduled" not in json_data)):
         return False
     if((not isinstance(json_data["image"], str)) or
-            (not isinstance(json_data["time_scheduled"], str)) or
-            (not isinstance(json_data["status"], str))):
+            (not isinstance(json_data["time_scheduled"], str))):
         return False
 
     return True
@@ -69,12 +69,15 @@ def scheduleJob(self, job_name, json_data, mock):
     if(not json_data["time_scheduled"] == "now"):
         time_scheduled, valid = validTime(json_data["time_scheduled"])
         if (not valid):
+            self.logging.info("Method: POST - {} - code: {}".format(job_name, 400))
             return time_scheduled, 400
 
         # if json is valid, schedule the job
         self.scheduler.add_job(create_instance, trigger='date', run_date=time_scheduled, args=[job_name, json_data, mock], id=job_name)
         delta = (time_scheduled - datetime.datetime.now())
+        self.logging.info("Method: POST - {} - code: {}".format(job_name, 201))
         return json.loads('{"message": "job scheduled in ' + str(delta) + '"}'), 201
 
+    self.logging.info("Method: POST - {} - code: {}".format(job_name, 201))
     self.scheduler.add_job(create_instance, trigger='date', run_date=datetime.datetime.now(), args=[job_name, json_data, mock], id=job_name)
     return json.loads('{"message": "job scheduled now"}'), 201 
