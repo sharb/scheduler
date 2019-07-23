@@ -47,18 +47,18 @@ class Job(Resource):
             self.scheduler.remove_job(job_name)
             self.logging.info("Method: DELETE - {} - code: {}".format(job_name, 200))
             return json.loads('{"message": "removed a scheduled job"}'), 200
-        # check if job_name is already running in aws if not Mocked
-        if (not args["mock"]):
-            return_data = instance_by_name(job_name)
-            if (return_data is not ""):
-                response = ec2.terminate_instances(
-                    InstanceIds=[return_data['instance_id'],])
-                self.logging.info("Method: DELETE - {} - code: {}".format(job_name, 200))
-                return json.loads('{"message": "removed a running job"}'), 200
-        else: 
-            self.logging.info("Method: Mock DELETE - {} - code: {}".format(job_name, 200))
-            return json.loads('{"message": "Mock deleted job"}'), 200
+        else:
+            if (args["mock"]):
+                self.logging.info("Method: Mock DELETE - {} - code: {}".format(job_name, 400))
+                return json.loads('{"error": "job not found"}'), 400
 
+        # check if job_name is already running in aws if not Mocked
+        return_data = instance_by_name(job_name)
+        if (return_data is not ""):
+            response = ec2.terminate_instances(
+                InstanceIds=[return_data['instance_id'],])
+            self.logging.info("Method: DELETE - {} - code: {}".format(job_name, 200))
+            return json.loads('{"message": "removed a running job"}'), 200
         self.logging.info("Method: DELETE - {} - code: {}".format(job_name, 400))
         return json.loads('{"error": "job not found"}'), 400
 

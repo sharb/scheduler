@@ -7,13 +7,14 @@ ec2 = boto3.client('ec2', region_name='us-west-2')
 # this method will valied if certain keys in json exists 
 # and it will validate all the values are of type str
 def valid_json(json_data):
+    if (json_data == None):
+        return False
     if (("image" not in json_data) or 
             ("time_scheduled" not in json_data)):
         return False
     if((not isinstance(json_data["image"], str)) or
             (not isinstance(json_data["time_scheduled"], str))):
         return False
-
     return True
     
 # this method will return the matched instance details if the job name matches the "Name" tag in the instance 
@@ -80,4 +81,6 @@ def scheduleJob(self, job_name, json_data, mock):
 
     self.logging.info("Method: POST - {} - code: {}".format(job_name, 201))
     self.scheduler.add_job(create_instance, trigger='date', run_date=datetime.datetime.now(), args=[job_name, json_data, mock], id=job_name)
+    if (mock):
+        return json.loads('{"message": "job mock scheduled"}'), 201
     return json.loads('{"message": "job scheduled now"}'), 201 

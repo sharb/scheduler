@@ -28,6 +28,24 @@ GET - desplays all the current jobs
 }
 ```
 
+* response (if empty): ```{}```
+
+DELETE - delete all the current jobs 
+
+* Body: None
+
+* response: 
+```json
+{
+    "message": "all job removed"
+}
+```
+```
+Status Code:
+201 (sucess created) or
+400 (bad request)
+```
+
 ## `/jobs/<name>`
 ***
 GET - gets information about the specific job name
@@ -49,12 +67,32 @@ GET - gets information about the specific job name
     "status": "running"
 }
 ```
+- status field:
+        - "running": the instence is currently running
+        - "pending": the instence is starting
 
 DELETE - deletes a specific job with name 
 
 * Body: None
 
-* Response: 
+* Response (if the job hasn't run): 
+```json
+{
+    "message": "removed a scheduled job"
+}
+```
+Status code:
+```
+204 (success but no content) Or
+404 (not found)
+```
+* Response (if the job already ran): 
+```json
+{
+    "message": "removed a running job"
+}
+```
+Status code:
 ```
 204 (success but no content) Or
 404 (not found)
@@ -66,12 +104,20 @@ POST - adds a job
 ```json
 {
     "name": "job name",
-    "time_scheduled": "date time set to run"
+    "time_scheduled": "date time format"
 }
 ```
-
+time_scheduled (json field) acceptable strings: 
+        - datetime format
+        - string "now"
 * response:
+```json
+{
+    "message": "job scheduled in x days, xx:xx:xx.xx"
+}
 ```
-201 (sucess created) And {"message": "sucessfully added a job"} Or
+```
+Status Code:
+201 (sucess created) or
 400 (bad request)
 ```
