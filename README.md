@@ -81,8 +81,8 @@ DELETE - deletes a specific job with name
     "message": "removed a scheduled job"
 }
 ```
-Status code:
 ```
+Status code:
 204 (success but no content) Or
 404 (not found)
 ```
@@ -92,8 +92,8 @@ Status code:
     "message": "removed a running job"
 }
 ```
-Status code:
 ```
+Status code:
 204 (success but no content) Or
 404 (not found)
 ```

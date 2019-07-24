@@ -3,3 +3,4 @@ __pycache__
 jobs.txt
 example.sqlite
 file.log
+database.sqlite

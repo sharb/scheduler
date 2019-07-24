@@ -1,7 +1,10 @@
-version: '3'
+version: '3.5'
 services:
   scheduler-dev:
-    build: .
+    container_name: scheduler-dev
+    build:
+      context: .
+      # target: dev
     command: python3 run.py
     volumes: 
       - .:/usr/src/app
@@ -9,10 +12,43 @@ services:
     ports:
       - 80:80
   scheduler-test:
-    build: .
+    container_name: scheduler-test
+    build:
+      context: .
+      # target: dev
     command: pytest
     volumes: 
       - .:/usr/src/app
       - ~/.aws:/root/.aws
+  # scheduler-prod:
+  #   container_name: scheduler-prod
+  #   build:
+  #     context: .
+  #     target: prod
+  #   # command: pytest
+  #   volumes: 
+  #     - .:/app
+  #     - ~/.aws:/root/.aws
+  #   ports:
+  #     - 5000:5000
+  #   # links:
+  #   #   - scheduler-nginx
+  #   expose:
+  #     - 8080
+  # scheduler-nginx:
+  #   container_name: scheduler-nginx
+  #   build:
+  #     context: .
+  #     target: nginx
+  #   restart: always
+  #   # volumes: 
+  #     # - .:/app
+  #     # - ~/.aws:/root/.aws
+  #   ports:
+  #     - 8000:80
+  #   depends_on:
+  #     - scheduler-prod
+
+
 
 

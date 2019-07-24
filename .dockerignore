@@ -1,0 +1,4 @@
+__pycache__/
+database.sqllite
+file.log
+.pytest_cache/
