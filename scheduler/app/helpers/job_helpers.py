@@ -1,4 +1,4 @@
-import os, datetime, sys, json, boto3, sqlalchemy
+import os, datetime, sys, json, boto3, sqlalchemy, psycopg2
 from app.helpers.create_instance import create_instance
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -87,8 +87,9 @@ def scheduleJob(self, job_name, json_data, mock):
     return json.loads('{"message": "job scheduled now"}'), 201 
 
 # get's the scheduler in the Jobs/Job init() 
-def get_scheduler():
-    engine = sqlalchemy.create_engine('sqlite:///{}'.format('database.sqlite'))
+def get_scheduler(self):
+    self.logging.info("Initialized scheduler and sqlalchemy")
+    engine = sqlalchemy.create_engine(os.environ['SQLITE_DB'])
     scheduler = BackgroundScheduler()
     # this creates the sqlalchemy database engine for the scheduler
     scheduler.add_jobstore('sqlalchemy', engine=engine)

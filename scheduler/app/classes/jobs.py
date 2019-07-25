@@ -10,8 +10,8 @@ parser.add_argument('mock', type=bool, location='headers')
 
 class Jobs(Resource):
     def __init__(self, logging):
-        self.scheduler = get_scheduler()
         self.logging = logging
+        self.scheduler = get_scheduler(self)
 
     # this method get all running aws jobs (instances) and scheduled jobs
     def get(self):

@@ -13,12 +13,12 @@ parser.add_argument('body', type=list, location='json')
 class Job(Resource):
     def __init__(self, logging, job_name):
 
-        self.scheduler = get_scheduler()
         self.logging = logging
         self.job_name = job_name
+        self.scheduler = get_scheduler(self)
 
-    # this method gets a single job description
-    # It will get two type of jobs:
+    # this method returns a single job description
+    # It will return two type of jobs:
     #        - jobs that are scheduled but not started yet
     #        - jobs that are already started 
     def get(self):

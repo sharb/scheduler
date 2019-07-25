@@ -1,6 +1,6 @@
 .pytest_cache
 __pycache__
 jobs.txt
-example.sqlite
 file.log
 database.sqlite
+db-data/
