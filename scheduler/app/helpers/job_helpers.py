@@ -1,6 +1,7 @@
-import os, datetime, sys, json, boto3
+import os, datetime, sys, json, boto3, sqlalchemy
 from app.helpers.create_instance import create_instance
-# from app import app_instance
+from apscheduler.schedulers.background import BackgroundScheduler
+
 
 ec2 = boto3.client('ec2', region_name='us-west-2')
 
@@ -84,3 +85,12 @@ def scheduleJob(self, job_name, json_data, mock):
     if (mock):
         return json.loads('{"message": "job mock scheduled"}'), 201
     return json.loads('{"message": "job scheduled now"}'), 201 
+
+# get's the scheduler in the Jobs/Job init() 
+def get_scheduler():
+    engine = sqlalchemy.create_engine('sqlite:///{}'.format('database.sqlite'))
+    scheduler = BackgroundScheduler()
+    # this creates the sqlalchemy database engine for the scheduler
+    scheduler.add_jobstore('sqlalchemy', engine=engine)
+    scheduler.start()
+    return scheduler

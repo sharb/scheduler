@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from flask_restful import reqparse, Resource, reqparse
-from app.helpers.job_helpers import instance_by_name
+from app.helpers.job_helpers import instance_by_name, get_scheduler
 import boto3, json
 
 ec2 = boto3.client('ec2', region_name='us-west-2')
@@ -9,8 +9,8 @@ parser.add_argument('mock', type=bool, location='headers')
 
 
 class Jobs(Resource):
-    def __init__(self, scheduler, logging):
-        self.scheduler = scheduler
+    def __init__(self, logging):
+        self.scheduler = get_scheduler()
         self.logging = logging
 
     # this method get all running aws jobs (instances) and scheduled jobs

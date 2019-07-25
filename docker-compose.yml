@@ -1,54 +1,63 @@
-version: '3.5'
+version: "3.7"
+
 services:
-  scheduler-dev:
-    container_name: scheduler-dev
-    build:
-      context: .
-      # target: dev
-    command: python3 run.py
-    volumes: 
-      - .:/usr/src/app
-      - ~/.aws:/root/.aws
-    ports:
-      - 80:80
+
   scheduler-test:
+    build: ./scheduler
     container_name: scheduler-test
-    build:
-      context: .
-      # target: dev
-    command: pytest
-    volumes: 
-      - .:/usr/src/app
+    # command: /bin/bash -c "python3 run.py"
+    # command: /bin/bash -c "uwsgi app.ini"
+    command: /bin/bash -c "pytest"
+    # restart: always
+    volumes:
+      - ./scheduler:/app
       - ~/.aws:/root/.aws
-  # scheduler-prod:
-  #   container_name: scheduler-prod
-  #   build:
-  #     context: .
-  #     target: prod
-  #   # command: pytest
-  #   volumes: 
-  #     - .:/app
-  #     - ~/.aws:/root/.aws
-  #   ports:
-  #     - 5000:5000
-  #   # links:
-  #   #   - scheduler-nginx
-  #   expose:
-  #     - 8080
-  # scheduler-nginx:
-  #   container_name: scheduler-nginx
-  #   build:
-  #     context: .
-  #     target: nginx
-  #   restart: always
-  #   # volumes: 
-  #     # - .:/app
-  #     # - ~/.aws:/root/.aws
-  #   ports:
-  #     - 8000:80
-  #   depends_on:
-  #     - scheduler-prod
+    environment:
+      - APP_NAME=MyFlaskApp
+    # ports:
+    #   - "8080:8080"
+    expose:
+      - 8080
 
+  scheduler-dev:
+    build: ./scheduler
+    container_name: scheduler-dev
+    command: /bin/bash -c "python3 run.py"
+    # command: /bin/bash -c "uwsgi app.ini"
+    # command: /bin/bash -c "pytest; exit 1"
+    # restart: always
+    volumes:
+      - ./flask:/app
+      - ~/.aws:/root/.aws
+    environment:
+      - APP_NAME=MyFlaskApp
+    ports:
+      - "8080:8080"
+    # expose:
+    #   - 8080
 
+  scheduler-prod:
+    build: ./scheduler
+    container_name: scheduler-prod
+    # command: /bin/bash -c "python3 run.py"
+    command: /bin/bash -c "uwsgi app.ini"
+    # command: /bin/bash -c "pytest; exit 1"
+    restart: always
+    volumes:
+      - ./scheduler:/app
+      - ~/.aws:/root/.aws
+    environment:
+      - APP_NAME=MyFlaskApp
+    expose:
+      - 8080
+    depends_on:
+      - nginx
 
-
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    # depends_on:
+    #   - scheduler-prod
