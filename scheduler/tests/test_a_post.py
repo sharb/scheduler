@@ -6,8 +6,6 @@ header = {'mock': 'True'}
 
 def test_delete_all():
     response = client.delete("/jobs/", headers=header)
-    print("####################################### DEBUG ####################################################")
-    print(response.get_data())
     print(response)
     assert b'{"message":"all job removed"}\n' == response.get_data()
 
@@ -16,8 +14,6 @@ def test_scheduled_job():
     response = client.post("/jobs/unittest-job-a/", 
         json = {"image": "nginx", "time_scheduled": "2019-08-28 06:00:00.00"}, 
         headers=header)
-    print("####################################### DEBUG ####################################################")
-    print(response.get_data())
     assert b'{"message":"job scheduled in' in response.get_data()
     assert 201 == response.status_code
 
