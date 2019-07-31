@@ -1,5 +1,5 @@
 # Welcome To Schedular API 
-> Built with flask app 
+> This api is used to deploy docker images to jobs (which are in it's own ec2 instance) 
 
 ## API endpoints: 
 
