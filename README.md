@@ -13,6 +13,10 @@ docker-compose up scheduler-test
 This is used as a local environment, also used for testing. It spins up a single container and runs the python app in debug mode for testing and developing. 
 ``` docker-compose up scheduler-dev ```
 
+## Secrets:
+---
+Secrets are stored in **.env** file in s3 bucket **s3://sharbesh-terraform-state/secrets/** . This is fetched during the creation and deployment of the instance inside _userdata_. 
+
 ## Deployment:
 ---
 ### Terraform
@@ -24,7 +28,8 @@ The terraform scripts located in the *terraform* directory defines the iam polic
 * This spins up a new container containing dependecies like aws cli and terraform and runs the entrypoint. 
 * The entrypoint will initiallize terraform with the backend state already saved in _sharbesh-terraform-state_ s3 bucket. Will then run a terraform plan and apply command. This terraform is set up to minimize down time with **create_before_destroy** set to **true**, terraform will first create a new instance before it destroys the old one. The output of the script will print out the instance id and public ip of the new instance. 
 
-***note***: The terraform plan and apply uses the target flag for the ec2_instance because my aws account doesn't have permission to list policies which terraform needs to display the ouput, so it will fail. For this reason the target is set, this is not super importent at the moment because the terraform state in s3 will use the role that was created by me previously. 
+***note***: The terraform plan and apply uses the target flag for the ec2_instance because currently terraform is adding group name "kops" to the iam recource. Because my user doesn't have **iam:DetachGroupPolicy** permission, I have left the target for terreform to only the ec2 instance resource. This is not too big of a problem since although terraform errors out, it still created all the iam permission nessecerry for the scheduler api to work properly. Since the state is being saved in a s3 bucket, it will be there after initializing after first time (which I performed manually).
+
 
 ### Docker-compose
 This is used to deploy the production version of the application stack. This spins up 3 different containers:

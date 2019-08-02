@@ -9,3 +9,5 @@ sudo chmod +x /home/ec2-user/scheduler/docker-compose
 cd /home/ec2-user/scheduler/
 sudo aws s3 cp s3://sharbesh-terraform-state/secrets/.env /home/ec2-user/scheduler/
 sudo /home/ec2-user/scheduler/docker-compose up -d scheduler-prod
+
+

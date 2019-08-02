@@ -14,18 +14,14 @@ resource "aws_iam_policy_attachment" "attach-to-scheduler" {
   roles      = ["${aws_iam_role.scheduler-role.name}"]
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
   # policy_arn = "${aws_iam_policy.ec2_iam_policy.arn}"
-  # policy_arn = "arn:aws:iam::935605334497:policy/ec2_policy"
 }
 
 resource "aws_iam_policy_attachment" "attach-to-scheduler-s3" {
   name       = "attach-to-scheduler"
   roles      = ["${aws_iam_role.scheduler-role.name}"]
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
-  # policy_arn = "${aws_iam_policy.ec2_iam_policy.arn}"
-  # policy_arn = "arn:aws:iam::935605334497:policy/ec2_policy"
 }
 
-# arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 resource "aws_iam_instance_profile" "scheduler-profile" {
   name  = "scheduler-profile"
   roles = ["${aws_iam_role.scheduler-role.name}"]
