@@ -17,6 +17,10 @@ This is used as a local environment, also used for testing. It spins up a single
 ---
 Secrets are stored in **.env** file in s3 bucket **s3://sharbesh-terraform-state/secrets/** . This is fetched during the creation and deployment of the instance inside _userdata_. 
 
+secrets include the postgres database user and password: 
+* POSTGRES_USER
+* POSTGRES_PASSWORD
+
 ## Deployment:
 ---
 ### Terraform
@@ -28,7 +32,7 @@ The terraform scripts located in the *terraform* directory defines the iam polic
 * This spins up a new container containing dependecies like aws cli and terraform and runs the entrypoint. 
 * The entrypoint will initiallize terraform with the backend state already saved in _sharbesh-terraform-state_ s3 bucket. Will then run a terraform plan and apply command. This terraform is set up to minimize down time with **create_before_destroy** set to **true**, terraform will first create a new instance before it destroys the old one. The output of the script will print out the instance id and public ip of the new instance. 
 
-***note***: The terraform plan and apply uses the target flag for the ec2_instance because currently terraform is adding group name "kops" to the iam recource. Because my user doesn't have **iam:DetachGroupPolicy** permission, I have left the target for terreform to only the ec2 instance resource. This is not too big of a problem since although terraform errors out, it still created all the iam permission nessecerry for the scheduler api to work properly. Since the state is being saved in a s3 bucket, it will be there after initializing after first time (which I performed manually).
+***note***: The terraform plan and apply uses the target flag for the ec2_instance because currently terraform is removing group name "kops" every terraform update and my user doesn't have **iam:DetachGroupPolicy** permission. This is not too big of a problem since although terraform errors out, it still created all the iam permission nessecerry for the scheduler api to work properly, and because of the **-target** flag terraform will not error. I also have the custom policy commented out from the **iam_rold.tf** file because for some reason I am still missing the **iam:CreatePolicy** permission. I was able to get around this by assigning preexisting aws owned policy. 
 
 
 ### Docker-compose

@@ -1,3 +1,7 @@
+
+# provider "aws" {
+#   region     = "us-west-2"
+# }
 resource "aws_iam_role" "scheduler-role" {
   name               = "scheduler-role"
   assume_role_policy = "${file("assume-role-policy.json")}"
