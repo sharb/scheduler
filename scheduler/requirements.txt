@@ -8,3 +8,4 @@ boto3==1.9.193
 awscli==1.16.203
 uWSGI==2.0.18
 psycopg2==2.8.3
+flake8==3.7.8

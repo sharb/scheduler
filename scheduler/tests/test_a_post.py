@@ -15,8 +15,6 @@ def test_scheduled_job():
         json={"image": "nginx", "time_scheduled": "2020-08-28 06:00:00.00"},
         headers=header)
     assert b'{"message":"job scheduled in' in response.get_data()
-    print("unittest-job-a")
-    print(response.get_data())
     assert 201 == response.status_code
 
 
