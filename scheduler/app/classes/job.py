@@ -1,7 +1,7 @@
-from flask import jsonify, request
-from flask_restful import reqparse, Resource, reqparse
+from flask import request
+from flask_restful import reqparse, Resource
 from app.helpers.job_helpers import valid_json, scheduleJob, instance_by_name, get_scheduler
-import json, sys, os, datetime, boto3
+import json, boto3
 
 
 ec2 = boto3.client('ec2', region_name='us-west-2')
@@ -20,8 +20,10 @@ class Job(Resource):
     # this method returns a single job description
     # It will return two type of jobs:
     #        - jobs that are scheduled but not started yet
-    #        - jobs that are already started 
+    #        - jobs that are already started
+
     def get(self):
+
         if (self.job_name in [job.id for job in self.scheduler.get_jobs()]):
             # to extract proper job info from the scheduler
             scheduled = str(self.scheduler.get_job(self.job_name).trigger)
@@ -29,14 +31,14 @@ class Job(Resource):
             image_name = self.scheduler.get_job(self.job_name).args[1]["image"]
             response_json = {
                 "image": str(image_name),
-                "time_scheduled": time_str, 
-                "status" : "scheduled"
+                "time_scheduled": time_str,
+                "status": "scheduled"
             }
             self.logging.info("Method: GET - {} - code: {}".format(self.job_name, 200))
             return response_json, 200
         else:
             return_data = instance_by_name(self.job_name)
-            # check if there's any jobs running in aws 
+            # check if there's any jobs running in aws
             if (return_data is not ""):
                 self.logging.info("Method: GET - {} - code: {}".format(self.job_name, 200))
                 return return_data, 200
@@ -58,8 +60,8 @@ class Job(Resource):
         # check if job_name is already running in aws if not Mocked
         return_data = instance_by_name(self.job_name)
         if (return_data is not ""):
-            response = ec2.terminate_instances(
-                InstanceIds=[return_data['instance_id'],])
+            ec2.terminate_instances(
+                InstanceIds=[return_data['instance_id'], ])
             self.logging.info("Method: DELETE - {} - code: {}".format(self.job_name, 200))
             return json.loads('{"message": "removed a running job"}'), 200
         self.logging.info("Method: DELETE - {} - code: {}".format(self.job_name, 400))
@@ -72,15 +74,14 @@ class Job(Resource):
         # make sure json is valid
         if (not valid_json(json_data)):
             return json.loads('{"error": "please provide a valid job"}'), 400
-        
-        # make sure the isn't already running 
+
+        # make sure the isn't already running
         if (instance_by_name(self.job_name) is not ""):
             return json.loads('{"error": "job name already running"}'), 409
-        
+
         # make sure job isn't already scheduled
         if (self.job_name in [job.id for job in self.scheduler.get_jobs()]):
             return json.loads('{"error": "job already scheduled to run"}'), 409
 
         # schedule the job
         return scheduleJob(self, self.job_name, json_data, args["mock"])
-        

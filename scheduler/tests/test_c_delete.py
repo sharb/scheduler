@@ -1,22 +1,22 @@
-from tests import client 
-import json
+from tests import client
 
+# this header will make sure it's not making any aws commands
 header = {'mock': 'True'}
 
 
 def test_delete_a():
-    response = client.delete("/jobs/unittest-job-a/", 
+    response = client.delete("/jobs/unittest-job-a/",
         headers=header)
     assert b'"message":"removed a scheduled job"' in response.get_data()
     assert 200 == response.status_code
 
 
 def test_delete_c():
-    response = client.delete("/jobs/unittest-job-c/", 
+    response = client.delete("/jobs/unittest-job-c/",
         headers=header)
     assert b'"message":"removed a scheduled job"' in response.get_data()
     assert 200 == response.status_code
-    
+
 
 def test_delete_all():
     response = client.delete("/jobs/", headers=header)

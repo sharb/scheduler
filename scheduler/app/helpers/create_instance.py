@@ -1,12 +1,15 @@
-import boto3, base64, sys
+import boto3, sys
 
 ec2 = boto3.resource('ec2', region_name='us-west-2')
 
+
+# This function will return after either mock instance or real instance has been created
 def create_instance(job_name, json_data, mock):
     if(mock):
         print("Mock created aws Instance ######################## (mock) " + job_name, file=sys.stdout)
         return
 
+    # userdata mainly to run the given image
     userdata = '''#!/bin/bash
                     sudo yum update -y
                     sudo yum install docker -y
@@ -14,7 +17,9 @@ def create_instance(job_name, json_data, mock):
                     sudo docker run -p 80:80 {}
         '''.format(json_data["image"])
 
-    instances = ec2.create_instances(
+    # creats instance with the name of the job
+    # this will tag:Createdby with the value of "Scheduler-Api"
+    ec2.create_instances(
         ImageId='ami-0f2176987ee50226e',
         InstanceType='t2.micro',
         UserData=userdata,
@@ -30,7 +35,7 @@ def create_instance(job_name, json_data, mock):
                     {
                         'Key': 'Name',
                         'Value': job_name
-                    }, 
+                    },
                     {
                         'Key': 'Createdby',
                         'Value': "Scheduler-Api"
@@ -39,5 +44,4 @@ def create_instance(job_name, json_data, mock):
             }
         ]
     )
-    # print(instances, file=sys.stdout)
-    return 
+    return

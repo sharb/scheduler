@@ -1,17 +1,17 @@
 
-from flask import Flask, escape, request
+from flask import Flask, request
 from app.classes.index import Index
 from app.classes.job import Job
 from app.classes.jobs import Jobs
-from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 
 # start the app
 app = Flask(__name__)
 
 # configure logging
-logging.basicConfig(filename='file.log',level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='file.log', level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p')
 
 # configure routes
 @app.route("/")
@@ -19,6 +19,7 @@ logging.basicConfig(filename='file.log',level=logging.INFO,
 def index():
     index = Index()
     return index.get()
+
 
 @app.route('/jobs/<job_name>', methods=['GET', 'POST', 'DELETE'])
 @app.route('/jobs/<job_name>/', methods=['GET', 'POST', 'DELETE'])
@@ -33,6 +34,7 @@ def job(job_name):
 
     if request.method == 'DELETE':
         return job.delete()
+
 
 @app.route('/jobs', methods=['GET', 'DELETE'])
 @app.route('/jobs/', methods=['GET', 'DELETE'])

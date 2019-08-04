@@ -3,7 +3,7 @@ services:
   scheduler-test:
     build: ./scheduler
     container_name: scheduler-test
-    command: /bin/bash -c "pytest"
+    command: /bin/bash -c "pytest; flake8 --config flake8.ini"
     volumes:
       - ./scheduler:/app
       - ~/.aws:/root/.aws
@@ -21,11 +21,8 @@ services:
     environment:
       - APP_NAME=scheduler
       - SQLITE_DB=sqlite:///database.sqlite
-      # - SQLITE_DB=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresdb:5432/scheduler-jobs
     ports:
       - "8080:8080"
-    # depends_on:
-    #   - postgresdb
 
   scheduler-prod:
     build: ./scheduler

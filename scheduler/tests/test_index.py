@@ -1,4 +1,5 @@
-from tests import client 
+from tests import client
+
 
 def test_index_html():
     response = client.get("/")
