@@ -2,13 +2,14 @@
 
 This api is used to deploy docker images to jobs (which are in it's own ec2 instance)
 
-## Test: 
+## Tests: 
 ---
-### pytest
+#### pytest
 * This runs unittest for the api functions and makes sure the api's functionality is the way it's supposed to.
-### flake8
+#### flake8
 * This is a linter to make sure all the standard coding format is met and the code is consistent throughout. The Config file to determine the formate is located in the **scheduler** folder in **flake8.ini**. 
-* these two tests can be performed with the docker-compose command below. These tests could also be used in a merge/pull request to secure/control the intregrety of the code. 
+
+These two tests can be performed with the docker-compose command below. These tests could also be used in a merge/pull request to secure/control the intregrety of the code. 
 ```
 docker-compose up scheduler-test
 ```

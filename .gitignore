@@ -6,5 +6,5 @@ database.sqlite
 db-data/
 .terraform/
 terraform.tfstate
-terraform.tfstate.backu
+terraform.tfstate.backup
 .env
