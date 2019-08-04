@@ -8,3 +8,4 @@ db-data/
 terraform.tfstate
 terraform.tfstate.backup
 .env
+database_test.sqlite
