@@ -1,4 +1,4 @@
-# Welcome To Schedular API 
+# Welcome To Scheduler API 
 > This api is used to deploy docker images to jobs (which are in it's own ec2 instance) 
 
 ## API endpoints: 

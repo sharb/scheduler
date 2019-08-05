@@ -67,15 +67,16 @@ def deleteJob(self, deleteAll=False):
                 jobTag = tag['Value']
         if (not instances["Instances"][0]['State']['Name'] in
                 ['shutting-down', 'terminated', 'stopping', 'stopped']):
-            deleted = True
             if (deleteAll):
                 self.logging.info("Deleting ec2 job: " + instances["Instances"][0]["InstanceId"])
                 ec2.terminate_instances(
                     InstanceIds=[instances["Instances"][0]["InstanceId"], ])
+                deleted = True
             elif (jobTag == self.job_name):
                 self.logging.info("Deleting ec2 job: " + instances["Instances"][0]["InstanceId"])
                 ec2.terminate_instances(
                     InstanceIds=[instances["Instances"][0]["InstanceId"], ])
+                deleted = True
     return deleted
 
 

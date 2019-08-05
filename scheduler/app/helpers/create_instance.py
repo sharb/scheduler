@@ -1,4 +1,4 @@
-import boto3, sys
+import boto3
 
 ec2 = boto3.resource('ec2', region_name='us-west-2')
 
@@ -6,10 +6,8 @@ ec2 = boto3.resource('ec2', region_name='us-west-2')
 # This function will return after either mock instance or real instance has been created
 def create_instance(job_name, json_data, mock):
     if(mock):
-        print("Mock created aws Instance ######################## (mock) " + job_name, file=sys.stdout)
         return
 
-    print("ACTUALLLLL created aws Instance ########################: " + job_name, file=sys.stdout)
     # userdata mainly to run the given image
     userdata = '''#!/bin/bash
                     sudo yum update -y
