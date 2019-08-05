@@ -14,7 +14,7 @@ def test_scheduled_job():
     response = client.post("/jobs/unittest-job-a/",
         json={"image": "nginx", "time_scheduled": "2020-08-28 06:00:00.00"},
         headers=header)
-    assert b'{"message":"job scheduled in' in response.get_data()
+    assert b'{"message":"Mock job scheduled in ' in response.get_data()
     assert 201 == response.status_code
 
 
@@ -22,7 +22,7 @@ def test_now_job():
     response = client.post("/jobs/unittest-job-b/",
         json={"image": "nginx", "time_scheduled": "now"},
         headers=header)
-    assert b'{"message":"job mock scheduled"}' in response.get_data()
+    assert b'{"message":"Mock job scheduled in ' in response.get_data()
     assert 201 == response.status_code
 
 
@@ -30,7 +30,7 @@ def test_scheduled_job_2():
     response = client.post("/jobs/unittest-job-c/",
         json={"image": "jenkins", "time_scheduled": "2020-08-28 06:00:00.00"},
         headers=header)
-    assert b'{"message":"job scheduled in' in response.get_data()
+    assert b'{"message":"Mock job scheduled in ' in response.get_data()
     assert 201 == response.status_code
 
 

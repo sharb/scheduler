@@ -54,6 +54,31 @@ def instance_by_name(job_name, get_all_instances=False):
         return ""
 
 
+# method for deleting either one job or multiple
+# it deletes all instances associated with the job
+# this will return if it deleted any jobs or not
+def deleteJob(self, deleteAll=False):
+    custom_filter = [{'Name': 'tag:Createdby', 'Values': ['Scheduler-Api']}]
+    response = ec2.describe_instances(Filters=custom_filter)
+    deleted = False
+    for instances in response["Reservations"]:
+        for tag in instances["Instances"][0]["Tags"]:
+            if (tag['Key'] == "Name"):
+                jobTag = tag['Value']
+        if (not instances["Instances"][0]['State']['Name'] in
+                ['shutting-down', 'terminated', 'stopping', 'stopped']):
+            deleted = True
+            if (deleteAll):
+                self.logging.info("Deleting ec2 job: " + instances["Instances"][0]["InstanceId"])
+                ec2.terminate_instances(
+                    InstanceIds=[instances["Instances"][0]["InstanceId"], ])
+            elif (jobTag == self.job_name):
+                self.logging.info("Deleting ec2 job: " + instances["Instances"][0]["InstanceId"])
+                ec2.terminate_instances(
+                    InstanceIds=[instances["Instances"][0]["InstanceId"], ])
+    return deleted
+
+
 # this method will return if the given str is in a datetime format or not
 def validTime(time_scheduled_str):
     now = datetime.datetime.now()
@@ -75,25 +100,21 @@ def scheduleJob(self, job_name, json_data, mock):
         if (not valid):
             self.logging.info("Method: POST - {} - code: {}".format(job_name, 400))
             return time_scheduled, 400
-
-        # if json is valid, schedule the job
-        self.scheduler.add_job(create_instance,
-                            trigger='date',
-                            run_date=time_scheduled,
-                            args=[job_name, json_data, mock],
-                            id=job_name)
-        delta = (time_scheduled - datetime.datetime.now())
-        self.logging.info("Method: POST - {} - code: {}".format(job_name, 201))
-        return json.loads('{"message": "job scheduled in ' + str(delta) + '"}'), 201
-
-    self.logging.info("Method: POST - {} - code: {}".format(job_name, 201))
-    self.scheduler.add_job(create_instance, trigger='date',
-                        run_date=datetime.datetime.now(),
+    else:
+        time_scheduled = datetime.datetime.now()
+    # if json is valid, schedule the job
+    self.scheduler.add_job(create_instance,
+                        trigger='date',
+                        misfire_grace_time=None,
+                        coalesce=True,
+                        max_instances=1,
+                        run_date=time_scheduled,
                         args=[job_name, json_data, mock],
                         id=job_name)
+    self.logging.info("Method: POST - {} - code: {}".format(job_name, 201))
     if (mock):
-        return json.loads('{"message": "job mock scheduled"}'), 201
-    return json.loads('{"message": "job scheduled now"}'), 201
+        return json.loads('{"message": "Mock job scheduled in ' + str(time_scheduled) + '"}'), 201
+    return json.loads('{"message": "job scheduled in ' + str(time_scheduled) + '"}'), 201
 
 
 # get's the scheduler in the Jobs/Job init()

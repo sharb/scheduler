@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import reqparse, Resource
-from app.helpers.job_helpers import valid_json, scheduleJob, instance_by_name, get_scheduler
+from app.helpers.job_helpers import valid_json, scheduleJob, instance_by_name, get_scheduler, deleteJob
 import json, boto3
 
 
@@ -57,11 +57,7 @@ class Job(Resource):
                 self.logging.info("Method: Mock DELETE - {} - code: {}".format(self.job_name, 400))
                 return json.loads('{"error": "job not found"}'), 400
 
-        # check if job_name is already running in aws if not Mocked
-        return_data = instance_by_name(self.job_name)
-        if (return_data is not ""):
-            ec2.terminate_instances(
-                InstanceIds=[return_data['instance_id'], ])
+        if (deleteJob(self)):
             self.logging.info("Method: DELETE - {} - code: {}".format(self.job_name, 200))
             return json.loads('{"message": "removed a running job"}'), 200
         self.logging.info("Method: DELETE - {} - code: {}".format(self.job_name, 400))

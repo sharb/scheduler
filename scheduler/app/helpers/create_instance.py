@@ -9,6 +9,7 @@ def create_instance(job_name, json_data, mock):
         print("Mock created aws Instance ######################## (mock) " + job_name, file=sys.stdout)
         return
 
+    print("ACTUALLLLL created aws Instance ########################: " + job_name, file=sys.stdout)
     # userdata mainly to run the given image
     userdata = '''#!/bin/bash
                     sudo yum update -y

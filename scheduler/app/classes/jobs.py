@@ -1,5 +1,5 @@
 from flask_restful import reqparse, Resource
-from app.helpers.job_helpers import instance_by_name, get_scheduler
+from app.helpers.job_helpers import instance_by_name, get_scheduler, deleteJob
 import boto3, json
 
 ec2 = boto3.client('ec2', region_name='us-west-2')
@@ -29,11 +29,7 @@ class Jobs(Resource):
         [self.scheduler.remove_job(job.id) for job in self.scheduler.get_jobs()]
         # remove all jobs in ec2 instance if the header is not mocked
         if (not args["mock"]):
-            running_instances = instance_by_name("", True)
-            for job_name, job_data in running_instances.items():
-                ec2.terminate_instances(
-                    InstanceIds=[job_data['instance_id'], ]
-                )
+            deleteJob(self, deleteAll=True)
         else:
             self.logging.info("Method: DELETE - Mock Deleted All Jobs - code: {}".format(200))
 
